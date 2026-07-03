@@ -1,4 +1,4 @@
-# Stagehand MCP Server - Local Mode
+# Stagehand MCP Server - Local Mode.
 
 [![npm version](https://badge.fury.io/js/stagehand-mcp-local.svg)](https://www.npmjs.com/package/stagehand-mcp-local)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
