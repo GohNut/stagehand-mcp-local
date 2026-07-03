@@ -44,6 +44,7 @@ export const createStagehandInstance = async (
       name: "custom",
       baseURL: customBaseUrl,
       apiKey: modelApiKey,
+      supportsStructuredOutputs: true,
     })(bareModel);
     modelConfig = { llmClient: new AISdkClient({ model: compatModel }) };
   } else {
