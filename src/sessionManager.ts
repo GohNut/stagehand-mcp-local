@@ -1,4 +1,5 @@
-import { Stagehand } from "@browserbasehq/stagehand";
+import { AISdkClient, Stagehand } from "@browserbasehq/stagehand";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import type { Config } from "../config.d.ts";
 import { clearScreenshotsForSession } from "./mcp/resources.js";
 import type { BrowserSession, CreateSessionParams } from "./types/types.js";
@@ -31,6 +32,31 @@ export const createStagehandInstance = async (
     process.env.OPENAI_API_KEY ||
     process.env.ANTHROPIC_API_KEY;
 
+  // Support routing to a third-party OpenAI-compatible endpoint (e.g. Z.AI/GLM)
+  // via the generic AI SDK openai-compatible provider, instead of the
+  // provider-specific @ai-sdk/openai client which sends OpenAI-only params
+  // that some OpenAI-compatible endpoints reject.
+  const customBaseUrl = process.env.OPENAI_BASE_URL || config.modelBaseUrl;
+  let modelConfig: { llmClient: AISdkClient } | { model: typeof modelName | { apiKey: string; modelName: typeof modelName } };
+  if (customBaseUrl) {
+    const bareModel = modelName.replace(/^openai\//, "");
+    const compatModel = createOpenAICompatible({
+      name: "custom",
+      baseURL: customBaseUrl,
+      apiKey: modelApiKey,
+    })(bareModel);
+    modelConfig = { llmClient: new AISdkClient({ model: compatModel }) };
+  } else {
+    modelConfig = {
+      model: modelApiKey
+        ? {
+            apiKey: modelApiKey,
+            modelName: modelName,
+          }
+        : modelName,
+    };
+  }
+
   let stagehand: Stagehand;
 
   if (isLocalMode) {
@@ -39,12 +65,7 @@ export const createStagehandInstance = async (
 
     stagehand = new Stagehand({
       env: "LOCAL",
-      model: modelApiKey
-        ? {
-            apiKey: modelApiKey,
-            modelName: modelName,
-          }
-        : modelName,
+      ...modelConfig,
       experimental: config.experimental ?? false,
       localBrowserLaunchOptions: {
         headless: config.localBrowserLaunchOptions?.headless ?? true,
@@ -65,12 +86,7 @@ export const createStagehandInstance = async (
       env: "BROWSERBASE",
       apiKey,
       projectId,
-      model: modelApiKey
-        ? {
-            apiKey: modelApiKey,
-            modelName: modelName,
-          }
-        : modelName,
+      ...modelConfig,
       ...(params.browserbaseSessionID && {
         browserbaseSessionID: params.browserbaseSessionID,
       }),

@@ -1,5 +1,5 @@
 {
-  "name": "stagehand-mcp-local",
+  "name": "@gohnut/stagehand-mcp-local",
   "version": "1.0.0",
   "description": "MCP server for AI browser automation using Stagehand - supports LOCAL mode without Browserbase cloud",
   "keywords": [
@@ -43,11 +43,13 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "clean": "rm -rf dist",
+    "prepare": "npm run build",
     "prepublishOnly": "pnpm clean && pnpm build",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "1.0.42",
     "@browserbasehq/sdk": "^2.6.0",
     "@browserbasehq/stagehand": "^3.0.3",
     "@mcp-ui/server": "^5.10.0",

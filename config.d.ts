@@ -131,6 +131,15 @@ export type Config = {
    */
   modelApiKey?: string;
   /**
+   * Custom base URL for an OpenAI-compatible model provider (e.g. Z.AI/GLM).
+   * When set, Stagehand is configured with an AISdkClient using
+   * @ai-sdk/openai-compatible pointed at this base URL instead of the
+   * default provider-specific client.
+   *
+   * Can also be supplied via the OPENAI_BASE_URL environment variable.
+   */
+  modelBaseUrl?: string;
+  /**
    * Enable experimental features
    *
    * @default false
