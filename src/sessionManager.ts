@@ -1,5 +1,6 @@
 import { AISdkClient, Stagehand } from "@browserbasehq/stagehand";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { ToolModeAISdkClient } from "./toolModeClient.js";
 import type { Config } from "../config.d.ts";
 import { clearScreenshotsForSession } from "./mcp/resources.js";
 import type { BrowserSession, CreateSessionParams } from "./types/types.js";
@@ -46,7 +47,12 @@ export const createStagehandInstance = async (
       apiKey: modelApiKey,
       supportsStructuredOutputs: true,
     })(bareModel);
-    modelConfig = { llmClient: new AISdkClient({ model: compatModel }) };
+    // GLM (Z.AI) and other OpenAI-compatible endpoints ignore
+    // `response_format: json_schema` and return prose instead of JSON, but
+    // DO honor real function-calling. ToolModeAISdkClient forces structured
+    // output through a forced tool call instead of json_schema. See
+    // src/toolModeClient.ts for the full rationale.
+    modelConfig = { llmClient: new ToolModeAISdkClient({ model: compatModel }) };
   } else {
     modelConfig = {
       model: modelApiKey
